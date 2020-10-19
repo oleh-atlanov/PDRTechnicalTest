@@ -3,6 +3,7 @@ using PDR.PatientBooking.Service.DoctorServices.Requests;
 using PDR.PatientBooking.Service.Validation;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PDR.PatientBooking.Service.DoctorServices.Validation
 {
@@ -23,6 +24,9 @@ namespace PDR.PatientBooking.Service.DoctorServices.Validation
                 return result;
 
             if (DoctorAlreadyInDb(request, ref result))
+                return result;
+
+            if(InvalidEmail(request.Email, ref result))
                 return result;
 
             return result;
@@ -57,6 +61,18 @@ namespace PDR.PatientBooking.Service.DoctorServices.Validation
             {
                 result.PassedValidation = false;
                 result.Errors.Add("A doctor with that email address already exists");
+                return true;
+            }
+
+            return false;
+        }
+        private bool InvalidEmail(string email, ref PdrValidationResult result)
+        {
+            var reg = new Regex("^[\\w-+\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+            if (!reg.IsMatch(email))
+            {
+                result.PassedValidation = false;
+                result.Errors.Add("Email must be a valid email address");
                 return true;
             }
 
